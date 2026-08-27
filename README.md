@@ -56,18 +56,6 @@ Today's operational-safety practices — change review, canary windows, on-call 
 
 Machine-speed autonomous `sudo` on firewall rules changes that assumption. They're not just "faster ops" — it's a different risk category. When things go wrong, the blast radius completes and dust is settling before any human, however attentive, can act.
 
-### Global Cloud Instances by eBPF/XDP Reflex-Layer Accessibility
-*(This table describes eBPF/XDP hook accessibility specifically — not `oxidizer`, which operates via the netfilter-based ingress hook, unavailable to eBPF/XDP. Related, but architecturally separate. Tiers count down from most common/least capable (Tier 3) to rarest/most capable (Tier 0).)*
-
-| Tier | Mechanism | Est. Market Share | Est. Instance Count | Typical Hosts | Reality Check |
-|---|---|---|---|---|---|
-| **Tier 3 — Hypervisor Block** | No eBPF/XDP hooks (traditional `sk_buff` networking only) | ~75% | ~22,500,000 | Hyperscalers (AWS EC2/Lightsail, GCP, Azure), traditional shared VPS (Linode, Akamai, standard instances) | **No reflex.** Packets traverse the host's virtual switch (Open vSwitch, AWS Nitro) before reaching your VM. Your OS handles them via the standard slow-path kernel buffer. No inline XDP drops possible. |
-| **Tier 2 — Emulated Sandbox** | `XDP_SKB` / Generic Mode (software emulation above the OS stack) | ~24.5% | ~7,350,000 | Modern developer clouds (Hetzner Cloud, DigitalOcean, Vultr, Scaleway, OVHcloud VPS) | **Borrowed reflex.** XDP programs load, but the hypervisor forces Generic Mode — the OS has already allocated metadata, burned CPU cycles, and fired interrupts before your program sees the packet. You skip user-space but miss line-rate flood speeds. |
-| **Tier 1 — True Native Reflex** | `XDP_DRV` / Native Mode (runs inside the hardware driver) | ~0.49% | ~147,000 | Dedicated bare metal (Hetzner Dedicated, OVH Dedicated, Vultr Bare Metal, colocation) | **True reflex.** Code runs the moment a packet leaves the ring buffer — evaluated and dropped in nanoseconds. Requires a physical NIC driver with native XDP support. |
-| **Tier 0 — The Absolute Edge** | `XDP_ZEROCOPY` (direct hardware DMA to memory space) | < 0.01% | ~3,000 | Custom bare metal with enterprise NICs (Intel i225/i226/ICE, Mellanox ConnectX-5+) | **Zero-copy reflex.** The NIC uses DMA to hand packets straight to your AI's memory block (UMEM) — zero CPU copies. Only available to teams running custom metal with specific enterprise NIC configurations. |
-
-*(Numbers are estimates and will be refined as better data comes in — inherently dynamic.)*
-
 ### Where does `oxidizer` fit?
 > [!IMPORTANT]
 > `oxidizer` binds to nftables' netdev **ingress hook** (`NF_NETDEV_INGRESS`) — a netfilter feature, not eBPF/XDP.
@@ -162,4 +150,16 @@ sudo ./target/release/fw
 
 # --- Confirmed-good ruleset -> persist it ---
 sudo nft list ruleset > /etc/nftables.conf
-```# anyport-in-a-storm-oxidizer
+```
+
+### Global Cloud Instances by eBPF/XDP Reflex-Layer Accessibility
+*(This table describes eBPF/XDP hook accessibility specifically — not `oxidizer`, which operates via the netfilter-based ingress hook, unavailable to eBPF/XDP. Related, but architecturally separate. Tiers count down from most common/least capable (Tier 3) to rarest/most capable (Tier 0).)*
+
+| Tier | Mechanism | Est. Market Share | Est. Instance Count | Typical Hosts | Reality Check |
+|---|---|---|---|---|---|
+| **Tier 3 — Hypervisor Block** | No eBPF/XDP hooks (traditional `sk_buff` networking only) | ~75% | ~22,500,000 | Hyperscalers (AWS EC2/Lightsail, GCP, Azure), traditional shared VPS (Linode, Akamai, standard instances) | **No reflex.** Packets traverse the host's virtual switch (Open vSwitch, AWS Nitro) before reaching your VM. Your OS handles them via the standard slow-path kernel buffer. No inline XDP drops possible. |
+| **Tier 2 — Emulated Sandbox** | `XDP_SKB` / Generic Mode (software emulation above the OS stack) | ~24.5% | ~7,350,000 | Modern developer clouds (Hetzner Cloud, DigitalOcean, Vultr, Scaleway, OVHcloud VPS) | **Borrowed reflex.** XDP programs load, but the hypervisor forces Generic Mode — the OS has already allocated metadata, burned CPU cycles, and fired interrupts before your program sees the packet. You skip user-space but miss line-rate flood speeds. |
+| **Tier 1 — True Native Reflex** | `XDP_DRV` / Native Mode (runs inside the hardware driver) | ~0.49% | ~147,000 | Dedicated bare metal (Hetzner Dedicated, OVH Dedicated, Vultr Bare Metal, colocation) | **True reflex.** Code runs the moment a packet leaves the ring buffer — evaluated and dropped in nanoseconds. Requires a physical NIC driver with native XDP support. |
+| **Tier 0 — The Absolute Edge** | `XDP_ZEROCOPY` (direct hardware DMA to memory space) | < 0.01% | ~3,000 | Custom bare metal with enterprise NICs (Intel i225/i226/ICE, Mellanox ConnectX-5+) | **Zero-copy reflex.** The NIC uses DMA to hand packets straight to your AI's memory block (UMEM) — zero CPU copies. Only available to teams running custom metal with specific enterprise NIC configurations. |
+
+*(Numbers are estimates and will be refined as better data comes in — inherently dynamic.)*
