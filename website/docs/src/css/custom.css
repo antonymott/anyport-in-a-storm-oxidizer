@@ -1,0 +1,36 @@
+/**
+ * Anyport in a Storm / RustyKey Styling Theme
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  --ifm-font-family-base: system-ui, -apple-system, sans-serif;
+  --ifm-code-font-family: 'JetBrains Mono', monospace;
+  --ifm-color-primary: #00ffc8;
+  --ifm-color-primary-dark: #00b38b;
+  --ifm-color-primary-darker: #009974;
+  --ifm-color-primary-darkest: #005943;
+  --ifm-color-primary-light: #33ffd4;
+  --ifm-color-primary-lighter: #4dffda;
+  --ifm-color-primary-lightest: #b3ffee;
+  --ifm-background-color: #0d1117;
+  --ifm-background-surface-color: #161b22;
+}
+
+[data-theme='dark'] {
+  --ifm-background-color: #0b0f19;
+  --ifm-background-surface-color: #111827;
+  --ifm-color-content: #f3f4f6;
+  --ifm-border-color: #1f2937;
+}
+
+/* Custom code block glow and typography */
+code {
+  font-family: var(--ifm-code-font-family);
+  border-radius: 4px;
+}
+
+docusaurus-highlighted-code-line {
+  background-color: rgba(0, 255, 200, 0.1);
+}

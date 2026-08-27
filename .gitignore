@@ -1,0 +1,11 @@
+target/
+**/*.rs.bk
+.git/
+
+# repomix
+repomix-output.md
+
+# local customization
+README_LOCAL.md
+
+.DS_Store

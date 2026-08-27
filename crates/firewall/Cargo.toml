@@ -1,0 +1,15 @@
+[package]
+name = "oxidizer-firewall"
+version = "0.0.3"
+edition = "2024"
+rust-version = "1.98"
+description = "nftables firewall provisioner for RustyKey®, Oxidizer℠ and BuzzyBee® VPS instances — PQC-aware, GeoIP-aware, netdev-ingress-hook filtering."
+license = "MIT"
+repository = "https://github.com/antonymott/anyport-in-a-storm-oxidizer"
+
+[[bin]]
+name = "fw"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
