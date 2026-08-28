@@ -6,13 +6,13 @@ v0.0.3
 > **Pre-production.** Await v1.0.0 before using this in production or regulated deployments.
 > *Oxidizing pqc-amplification DDoS packets, one subnet at a time.*
 
+"**Sudo** for **AI.** What could possibly go wrong." — anon 2027
+
 <p align="center">
   <img src="logo.png" alt="oxidizer logo" width="400">
 </p>
 
-"Sudo for AI. What could possibly go wrong."
 
-— anon 2027
 
 Welcome to the public repo for **anyport-in-a-storm** (internally, **`oxidizer`**) — first in a suite of PQC-aware, machine-speed tools for threat-model actors. It runs at **Tier-2 timing** (post-SKB, the same early window as Generic XDP) with **Tier-2 *and* Tier-3 availability** — no driver, hypervisor, or NIC cooperation required.
 
