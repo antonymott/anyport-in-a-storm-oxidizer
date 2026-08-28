@@ -10,6 +10,10 @@ v0.0.3
   <img src="logo.png" alt="oxidizer logo" width="400">
 </p>
 
+"Sudo for AI. What could possibly go wrong."
+
+— anon 2027
+
 Welcome to the public repo for **anyport-in-a-storm** (internally, **`oxidizer`**) — first in a suite of PQC-aware, machine-speed tools for threat-model actors. It runs at **Tier-2 timing** (post-SKB, the same early window as Generic XDP) with **Tier-2 *and* Tier-3 availability** — no driver, hypervisor, or NIC cooperation required.
 
 It's not an app, process or systemd: it simply an ultra-lightweight `nftables` firewall provisioner written in modern Rust (Edition 2024). It works for us — we provide its binary to our autonomous-ai who acts as sentinal to all our metal, actually in production throughout the `rustykey.io` and `rustykey.me` infrastructure suite. Is it good enough for others to use, or production-ready? Not likely, and certainly not without sandboxing and testing first. Publishing the exact tool our own autonomous-ai wields is possibly miscalculated — we're betting the ranch, *our* ranch, on Kerckhoffs's Principle holding.
