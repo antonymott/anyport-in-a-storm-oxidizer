@@ -21,10 +21,33 @@ fn nft(rule: &str) -> Result<()> {
     Ok(())
 }
 
+/// Removes every table, chain and rule from the host, leaving no firewall.
+///
+/// # Errors
+///
+/// Returns an error if `nft` cannot be run or rejects the command.
 pub fn flush_ruleset() -> Result<()> {
     nft("flush ruleset")
 }
 
+/// Builds the `inet filter` table for `host`.
+///
+/// Creates `input` and `forward` chains with a drop policy and an `output`
+/// chain with an accept policy. Input allows loopback, established traffic,
+/// SSH on [`CUSTOM_SSH_PORT`] at 10 new connections per minute, HTTP, HTTPS,
+/// rate-limited ICMP echo and ICMPv6 discovery, plus TCP 9010 on radon. It drops
+/// invalid packets, failed reverse-path checks and illegal TCP flag
+/// combinations, and rejects TCP and UDP 3000 and 3001 from anything but
+/// loopback. Output lets `app-runner` reach only Redis on loopback, blocks
+/// every other user from Redis on loopback and blocks all new connections
+/// from `git-deploy`.
+///
+/// Expects the ruleset to have been flushed first.
+///
+/// # Errors
+///
+/// Returns an error on the first `nft` command that fails. Rules added before
+/// it stay in place.
 pub fn create_main_firewall(host: Host) -> Result<()> {
     logging::honey("Creating inet filter table...");
     nft("add table inet filter")?;

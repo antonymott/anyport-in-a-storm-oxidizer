@@ -8,6 +8,22 @@ use std::process::Command;
 use crate::config::{GEOIP_CONFIG_PATH, GEOIP_SETS_PATH, TRUSTED_IPV4, TRUSTED_IPV6};
 use crate::logging;
 
+/// Loads the `netdev filter` ingress table on `interface`.
+///
+/// Builds a table with trusted sets from [`TRUSTED_IPV4`] and [`TRUSTED_IPV6`]
+/// and country sets for `blocked_countries` taken from the files under
+/// [`GEOIP_SETS_PATH`]. Its ingress chain accepts trusted sources, logs and
+/// drops sources in the country sets and accepts everything else. The table
+/// is written to [`GEOIP_CONFIG_PATH`], loaded with `nft -f` and the file is
+/// then removed.
+///
+/// Skips the table with a warning when the GeoIP set folders are missing and
+/// carries on with a warning when `nft` rejects the file, so the main
+/// firewall is still applied in both cases.
+///
+/// # Errors
+///
+/// Returns an error if the file cannot be written or `nft` cannot be run.
 pub fn setup_geoip_blocking(interface: &str, blocked_countries: &[String]) -> Result<()> {
     logging::honey("🎯 Setting up ingress shield (trust list + GeoIP)...");
 

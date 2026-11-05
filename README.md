@@ -119,10 +119,10 @@ It helps automate and speed up a plain kernel feature, available on most Linux h
 
 ```bash
 cargo build --release
-sudo ./target/release/fw test
+sudo ./target/release/fw --test
 ```
 
-📖 Docusaurus docs coming soon to GitHub Pages.
+📖 Docs: https://antonymott.github.io/anyport-in-a-storm-oxidizer/
 
 ## repomix
 
