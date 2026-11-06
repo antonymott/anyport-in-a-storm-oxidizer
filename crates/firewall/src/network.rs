@@ -12,6 +12,7 @@ pub enum Host {
     Tungsten,
     Cobalt,
     Cryptlok,
+    Rustychain,
     Unknown,
 }
 
@@ -23,6 +24,7 @@ impl Host {
             Host::Tungsten => "tungsten",
             Host::Cobalt => "cobalt",
             Host::Cryptlok => "cryptlok",
+            Host::Rustychain => "rustychain",
             Host::Unknown => "unknown",
         }
     }
@@ -50,6 +52,8 @@ pub fn detect_host() -> Result<Host> {
         Host::Cobalt
     } else if hostname.contains("cryptlok") {
         Host::Cryptlok
+    } else if hostname.contains("rustychain") {
+        Host::Rustychain
     } else {
         Host::Unknown
     })

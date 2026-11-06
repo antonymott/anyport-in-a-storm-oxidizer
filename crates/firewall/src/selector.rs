@@ -27,13 +27,42 @@ use std::process::Command;
 /// - **BY (Belarus)**:
 ///   - [OFAC Belarus Sanctions](https://ofac.treasury.gov/sanctions-programs-and-country-information) - Subject to broad hybrid/sectoral restrictions, layered on top of structural industry blocks.
 ///   - Broadly barred by global tech infrastructure issuers (e.g., [Sectigo Banned Country Policies](https://www.sectigo.com/knowledge-base/detail/Banned-Country-List-1527076085907)) alongside Russia.
+// pub const AVAILABLE_COUNTRIES: &[(&str, &str)] = &[
+//     ("CN", "China"),
+//     ("RU", "Russia"),
+//     ("KP", "North Korea"),
+//     ("IR", "Iran"),
+//     ("CU", "Cuba"),
+//     ("BY", "Belarus"),
+// ];
 pub const AVAILABLE_COUNTRIES: &[(&str, &str)] = &[
     ("CN", "China"),
     ("RU", "Russia"),
     ("KP", "North Korea"),
     ("IR", "Iran"),
-    ("CU", "Cuba"),
-    ("BY", "Belarus"),
+    ("VN", "Vietnam"),
+    ("BR", "Brazil"),
+    ("UA", "Ukraine"),
+    ("TR", "Turkey"),
+    ("ID", "Indonesia"),
+    ("RO", "Romania"),
+    ("MX", "Mexico"),
+    ("BD", "Bangladesh"),
+    ("TH", "Thailand"),
+    ("PH", "Philippines"),
+    ("EG", "Egypt"),
+    ("NG", "Nigeria"),
+    ("LY", "Libya"),
+    ("NL", "Netherlands"),
+    ("SG", "Singapore"),
+    ("IN", "India"),
+    ("BG", "Bulgaria"),
+    ("LT", "Lithuania"),
+    ("CO", "Colombia"),
+    ("PE", "Peru"),
+    ("TW", "Taiwan"),
+    ("CR", "Costa Rica"),
+    ("ZA", "South Africa"),
 ];
 
 struct TermGuard {
