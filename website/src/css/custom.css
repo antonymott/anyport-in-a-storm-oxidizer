@@ -7,6 +7,16 @@
 :root {
   --ifm-font-family-base: system-ui, -apple-system, sans-serif;
   --ifm-code-font-family: 'JetBrains Mono', monospace;
+  --ifm-color-primary: #00735c;
+  --ifm-color-primary-dark: #006853;
+  --ifm-color-primary-darker: #00624e;
+  --ifm-color-primary-darkest: #005140;
+  --ifm-color-primary-light: #007e65;
+  --ifm-color-primary-lighter: #00846a;
+  --ifm-color-primary-lightest: #009578;
+}
+
+[data-theme='dark'] {
   --ifm-color-primary: #00ffc8;
   --ifm-color-primary-dark: #00b38b;
   --ifm-color-primary-darker: #009974;
@@ -14,11 +24,6 @@
   --ifm-color-primary-light: #33ffd4;
   --ifm-color-primary-lighter: #4dffda;
   --ifm-color-primary-lightest: #b3ffee;
-  --ifm-background-color: #0d1117;
-  --ifm-background-surface-color: #161b22;
-}
-
-[data-theme='dark'] {
   --ifm-background-color: #0b0f19;
   --ifm-background-surface-color: #111827;
   --ifm-color-content: #f3f4f6;
