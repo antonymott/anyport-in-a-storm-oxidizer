@@ -8,6 +8,16 @@ use std::process::Command;
 
 use crate::logging;
 
+/// Checks that the SSH session `fw` was started from is still established.
+///
+/// Reads the client address and port from `SSH_CONNECTION` and looks for a
+/// matching established connection in `ss`. Returns `Ok(true)` when the
+/// session is found, or when there is no `SSH_CONNECTION` because `fw` runs
+/// from a console. Returns `Ok(false)` when the session is gone.
+///
+/// # Errors
+///
+/// Returns an error if `ss` cannot be run.
 pub fn verify_ssh_session_alive() -> Result<bool> {
     let ssh_connection = match env::var("SSH_CONNECTION") {
         Ok(v) if !v.trim().is_empty() => v,

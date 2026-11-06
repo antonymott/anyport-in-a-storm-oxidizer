@@ -9,14 +9,22 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::logging;
 
+/// Result of trying to cancel the safety flush.
 pub enum CancelOutcome {
+    /// The `at` job was removed and the new rules stay.
     Cleared,
+    /// `atrm` ran but the job with this id is still queued.
     FailedStillQueued(String),
+    /// No `at` job could be found to cancel.
     NotFound,
 }
 
+/// The `at` job that flushes the ruleset if the operator does not confirm
+/// the new rules in time.
 pub struct SafetyTimer {
+    /// Unix time in seconds when the job was queued.
     pub armed_at: u64,
+    /// Minutes until the job runs.
     pub minutes: u64,
     job_id: Option<String>,
 }
@@ -24,6 +32,10 @@ pub struct SafetyTimer {
 impl SafetyTimer {
     /// Arms `nft flush ruleset` to fire via `at` in `minutes` minutes.
     /// Prints the same operator warning the original script did.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if `at` cannot be started or does not accept the job.
     pub fn arm(minutes: u64) -> Result<Self> {
         println!("warning: commands will be executed using /bin/sh");
 
@@ -82,6 +94,12 @@ impl SafetyTimer {
     }
 
     /// Used on emergency rollback: cancel *every* pending `at` job.
+    ///
+    /// This also removes `at` jobs that other tools queued on the host.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if `atq` cannot be run.
     pub fn cancel_all_pending() -> Result<()> {
         let output = Command::new("atq").output().context("failed to execute `atq`")?;
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -92,6 +110,7 @@ impl SafetyTimer {
     }
 }
 
+/// Reads the job id from `at` output such as `job 3 at Thu Jan  1 00:01:00 1970`.
 fn parse_at_job_id(text: &str) -> Option<String> {
     // Typical `at` output: "job 3 at Thu Jan  1 00:01:00 1970"
     for line in text.lines() {
@@ -104,6 +123,7 @@ fn parse_at_job_id(text: &str) -> Option<String> {
     None
 }
 
+/// Returns the highest job id in `atq`, used when `arm` could not read one.
 fn find_last_atq_job() -> Result<Option<String>> {
     let output = Command::new("atq").output().context("failed to execute `atq`")?;
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -116,6 +136,7 @@ fn find_last_atq_job() -> Result<Option<String>> {
     Ok(ids.last().map(|id| id.to_string()))
 }
 
+/// Returns whether `job_id` is still listed by `atq`.
 fn atq_contains(job_id: &str) -> Result<bool> {
     let output = Command::new("atq").output().context("failed to execute `atq`")?;
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -162,6 +183,7 @@ impl Drop for RawTerminalGuard {
     }
 }
 
+/// Starts a thread that sends one message on the first byte read from stdin.
 fn spawn_key_listener() -> Receiver<()> {
     let (tx, rx) = mpsc::channel();
     thread::spawn(move || {
@@ -173,6 +195,7 @@ fn spawn_key_listener() -> Receiver<()> {
     rx
 }
 
+/// Returns the RGB colour at `pos` from 0 to 255 along the progress bar gradient.
 fn gradient_color(pos: u64) -> (u8, u8, u8) {
     // Pink/Magenta (255,0,180) -> Orange/Yellow (255,160,0) -> Cyan/Green (0,255,200)
     if pos < 128 {
@@ -188,6 +211,7 @@ fn gradient_color(pos: u64) -> (u8, u8, u8) {
     }
 }
 
+/// Redraws the progress bar in place with the percentage and seconds left.
 fn render_bar(percentage: u64, remaining: u64) {
     let width: u64 = 40;
     let filled = percentage * width / 100;
@@ -210,6 +234,16 @@ fn render_bar(percentage: u64, remaining: u64) {
     let _ = io::stdout().flush();
 }
 
+/// Shows the countdown until the safety flush and waits for a key press.
+///
+/// A key press before the end cancels `timer` in test mode so the new rules
+/// stay. When the time runs out the flush has removed the rules and a warning
+/// that the host has no firewall is printed.
+///
+/// # Errors
+///
+/// Returns an error if the system clock is before the Unix epoch or if
+/// cancelling the `at` job fails to run `atq`.
 pub fn run_progress_countdown(is_test_mode: bool, timer: &SafetyTimer) -> Result<()> {
     let total_duration = timer.minutes * 60;
     let start_time = timer.armed_at;

@@ -9,3 +9,7 @@ repomix-output.md
 README_LOCAL.md
 
 .DS_Store
+# docs site
+website/node_modules/
+website/.docusaurus/
+website/build/

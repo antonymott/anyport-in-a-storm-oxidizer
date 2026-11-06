@@ -20,16 +20,22 @@ use std::sync::Mutex;
 /// mirroring the bash script's `CURRENT_STEP` + `trap ... ERR` pairing.
 static CURRENT_STEP: Mutex<&str> = Mutex::new("Initialization");
 
+/// Records the step that is about to run so a later failure can name it.
 fn set_step(step: &'static str) {
     if let Ok(mut guard) = CURRENT_STEP.lock() {
         *guard = step;
     }
 }
 
+/// Returns the name of the step that was running most recently.
+///
+/// Used by the binary's panic hook and error handler to report where a run
+/// stopped. Returns `"Unknown"` if the step lock is poisoned.
 pub fn current_step() -> &'static str {
     CURRENT_STEP.lock().map(|g| *g).unwrap_or("Unknown")
 }
 
+/// How a provisioning run ended when it did not return an error.
 pub enum ExitOutcome {
     /// Provisioning completed - process should exit 0.
     Success,
@@ -48,6 +54,28 @@ pub struct RunOptions {
     pub geoip_enabled: bool,
 }
 
+/// Runs one full provisioning pass and returns how it ended.
+///
+/// The steps run in this order:
+///
+/// 1. In test mode, arm the `at` safety flush.
+/// 2. Detect the host and stop with [`ExitOutcome::CleanExit`] if it has no profile.
+/// 3. Detect the network interface.
+/// 4. If GeoIP is enabled, ask which countries to block.
+/// 5. Flush the whole ruleset.
+/// 6. If GeoIP is enabled, load the `netdev` ingress table.
+/// 7. Build the `inet filter` table for the host.
+/// 8. In test mode, check the operator's SSH session survived. If not, flush
+///    again, cancel every pending `at` job and return [`ExitOutcome::CleanExit`].
+/// 9. Print the summary.
+/// 10. In test mode, run the countdown until a key press keeps the rules or
+///     the safety flush removes them.
+///
+/// # Errors
+///
+/// Returns an error if a required tool cannot be run or an `nft` command
+/// fails. The ruleset may then be partly applied. In test mode the armed
+/// safety flush still reverts it.
 pub fn run(opts: RunOptions) -> Result<ExitOutcome> {
     let safety_timer = if opts.is_test_mode {
         set_step("Arming Safety Timer");

@@ -6,6 +6,7 @@
 use oxidizer_firewall::{ExitOutcome, RunOptions, current_step, logging, run};
 use std::process;
 
+/// Parses a `--geoipblock` value, accepting true/false, 1/0, yes/no and on/off in any case.
 fn parse_bool(value: &str) -> Option<bool> {
     match value.to_ascii_lowercase().as_str() {
         "true" | "1" | "yes" | "on" => Some(true),

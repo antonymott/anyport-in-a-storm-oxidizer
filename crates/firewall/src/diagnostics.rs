@@ -6,6 +6,7 @@ use crate::config::{CUSTOM_SSH_PORT, SAFETY_TIMER_MINUTES};
 use crate::logging;
 use crate::network::Host;
 
+/// Returns the first address from `hostname -I`, or a placeholder if there is none.
 fn primary_ip() -> String {
     Command::new("hostname")
         .arg("-I")
@@ -20,6 +21,12 @@ fn primary_ip() -> String {
         .unwrap_or_else(|| "your-server-ip".to_string())
 }
 
+/// Prints the summary after the rules are applied.
+///
+/// Lists the verification commands, the blocked countries, the open and
+/// loopback-only ports for `host`, external `nmap` checks and log queries.
+/// Ends with the safety timer reminder in test mode or the commands to keep
+/// the rules across reboots in production mode.
 pub fn display_completion_info(
     host: Host,
     is_test_mode: bool,
